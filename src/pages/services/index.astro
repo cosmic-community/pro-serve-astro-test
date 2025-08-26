@@ -1,0 +1,63 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import ServiceCard from '../../components/ServiceCard.astro';
+import CosmicBadge from '../../components/CosmicBadge.astro';
+import { getServices } from '../../lib/cosmic';
+
+const services = await getServices();
+const bucketSlug = import.meta.env.COSMIC_BUCKET_SLUG;
+---
+
+<Layout title="Our Services - Professional Solutions for Every Business Need" description="Explore our comprehensive range of professional services designed to help your business succeed. From web development to digital marketing and business consulting.">
+  <Header />
+  
+  <!-- Hero Section -->
+  <section class="bg-gray-50 py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center">
+        <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+          Our Services
+        </h1>
+        <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+          We offer comprehensive professional services designed to help your business thrive in today's competitive landscape. From strategy to implementation, we've got you covered.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Services Grid -->
+  <section class="py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {services.length > 0 ? (
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {services.map((service) => (
+            <ServiceCard service={service} />
+          ))}
+        </div>
+      ) : (
+        <div class="text-center py-12">
+          <h2 class="text-2xl font-semibold text-gray-900 mb-4">No Services Available</h2>
+          <p class="text-gray-600">Services will appear here once they are added to your Cosmic bucket.</p>
+        </div>
+      )}
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="py-16 bg-primary-600 text-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <h2 class="text-3xl md:text-4xl font-bold mb-4">Ready to Get Started?</h2>
+      <p class="text-xl text-primary-100 mb-8 max-w-2xl mx-auto">
+        Let's discuss how we can help your business achieve its goals with our expert services.
+      </p>
+      <a href="/contact" class="bg-white text-primary-600 hover:bg-gray-100 px-8 py-3 rounded-md font-semibold text-lg transition-colors">
+        Contact Us Today
+      </a>
+    </div>
+  </section>
+
+  <Footer />
+  <CosmicBadge bucketSlug={bucketSlug} />
+</Layout>

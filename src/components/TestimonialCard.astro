@@ -1,0 +1,82 @@
+---
+import type { Testimonial } from '../types';
+
+export interface Props {
+  testimonial: Testimonial;
+}
+
+const { testimonial } = Astro.props;
+
+const renderStars = (rating: number) => {
+  return Array.from({ length: 5 }, (_, index) => {
+    const filled = index < rating ? 'text-yellow-400' : 'text-gray-300';
+    return { filled, index };
+  });
+};
+
+const ratingNumber = parseInt(testimonial.metadata?.rating?.key || '5');
+---
+
+<div class="bg-white rounded-lg shadow-md p-6">
+  {/* Star Rating */}
+  <div class="flex text-yellow-400 mb-4">
+    {renderStars(ratingNumber).map(({ filled, index }) => (
+      <svg
+        key={index}
+        class={`w-5 h-5 ${filled}`}
+        fill="currentColor"
+        viewBox="0 0 20 20"
+      >
+        <path
+          fill-rule="evenodd"
+          d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"
+          clip-rule="evenodd"
+        />
+      </svg>
+    ))}
+  </div>
+  
+  {/* Testimonial Text */}
+  <blockquote class="text-gray-700 mb-6 italic">
+    "{testimonial.metadata?.testimonial}"
+  </blockquote>
+  
+  {/* Client Info */}
+  <div class="flex items-center">
+    {testimonial.metadata?.client_photo && (
+      <img 
+        src={`${testimonial.metadata.client_photo.imgix_url}?w=120&h=120&fit=crop&auto=format,compress`}
+        alt={testimonial.metadata?.client_name}
+        class="w-12 h-12 rounded-full object-cover mr-4"
+        loading="lazy"
+      />
+    )}
+    
+    <div>
+      <div class="font-semibold text-gray-900">
+        {testimonial.metadata?.client_name}
+      </div>
+      <div class="text-sm text-gray-600">
+        {testimonial.metadata?.client_title && (
+          <span>{testimonial.metadata.client_title}</span>
+        )}
+        {testimonial.metadata?.client_title && testimonial.metadata?.company && (
+          <span> at </span>
+        )}
+        {testimonial.metadata?.company && (
+          <span class="font-medium">{testimonial.metadata.company}</span>
+        )}
+      </div>
+    </div>
+  </div>
+  
+  {/* Related Service */}
+  {testimonial.metadata?.related_service && (
+    <div class="mt-4 pt-4 border-t border-gray-200">
+      <div class="text-xs text-gray-500 uppercase tracking-wide">Service:</div>
+      <div class="text-sm font-medium text-primary-600">
+        {testimonial.metadata.related_service.metadata?.name || testimonial.metadata.related_service.title}
+      </div>
+    </div>
+  )}
+</div>

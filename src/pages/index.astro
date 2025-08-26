@@ -1,0 +1,175 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import ServiceCard from '../components/ServiceCard.astro';
+import TeamCard from '../components/TeamCard.astro';
+import TestimonialCard from '../components/TestimonialCard.astro';
+import CaseStudyCard from '../components/CaseStudyCard.astro';
+import CosmicBadge from '../components/CosmicBadge.astro';
+import { getServices, getTeamMembers, getTestimonials, getCaseStudies } from '../lib/cosmic';
+
+// Fetch content from Cosmic
+const [services, teamMembers, testimonials, caseStudies] = await Promise.all([
+  getServices(),
+  getTeamMembers(),
+  getTestimonials(),
+  getCaseStudies()
+]);
+
+// Get featured items (first few for homepage)
+const featuredServices = services.slice(0, 3);
+const featuredTeam = teamMembers.slice(0, 3);
+const featuredTestimonials = testimonials.slice(0, 3);
+const featuredCaseStudies = caseStudies.slice(0, 2);
+
+const bucketSlug = import.meta.env.COSMIC_BUCKET_SLUG;
+---
+
+<Layout title="Professional Services - Expert Solutions for Your Business">
+  <Header />
+  
+  <!-- Hero Section -->
+  <section class="bg-gradient-to-r from-primary-600 to-primary-700 text-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+      <div class="text-center">
+        <h1 class="text-4xl md:text-6xl font-bold mb-6">
+          Expert Solutions for Your Business Success
+        </h1>
+        <p class="text-xl md:text-2xl text-primary-100 mb-8 max-w-3xl mx-auto">
+          We deliver exceptional professional services that help businesses grow, optimize operations, and achieve their strategic goals through innovative solutions and expert consulting.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+          <a href="/services" class="bg-white text-primary-600 hover:bg-gray-100 px-8 py-3 rounded-md font-semibold text-lg transition-colors">
+            Our Services
+          </a>
+          <a href="/contact" class="border-2 border-white text-white hover:bg-white hover:text-primary-600 px-8 py-3 rounded-md font-semibold text-lg transition-colors">
+            Contact Us
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Services Section -->
+  {featuredServices.length > 0 && (
+    <section class="py-16 bg-gray-50">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Our Services</h2>
+          <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+            We offer comprehensive professional services designed to help your business thrive in today's competitive landscape.
+          </p>
+        </div>
+        
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {featuredServices.map((service) => (
+            <ServiceCard service={service} />
+          ))}
+        </div>
+        
+        {services.length > 3 && (
+          <div class="text-center mt-12">
+            <a href="/services" class="bg-primary-600 text-white hover:bg-primary-700 px-8 py-3 rounded-md font-semibold text-lg transition-colors">
+              View All Services
+            </a>
+          </div>
+        )}
+      </div>
+    </section>
+  )}
+
+  <!-- Case Studies Section -->
+  {featuredCaseStudies.length > 0 && (
+    <section class="py-16">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Success Stories</h2>
+          <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+            See how we've helped businesses like yours achieve remarkable results through our expert solutions and strategic approach.
+          </p>
+        </div>
+        
+        <div class="grid lg:grid-cols-2 gap-8">
+          {featuredCaseStudies.map((caseStudy) => (
+            <CaseStudyCard caseStudy={caseStudy} />
+          ))}
+        </div>
+        
+        {caseStudies.length > 2 && (
+          <div class="text-center mt-12">
+            <a href="/case-studies" class="bg-primary-600 text-white hover:bg-primary-700 px-8 py-3 rounded-md font-semibold text-lg transition-colors">
+              View All Case Studies
+            </a>
+          </div>
+        )}
+      </div>
+    </section>
+  )}
+
+  <!-- Testimonials Section -->
+  {featuredTestimonials.length > 0 && (
+    <section class="py-16 bg-gray-50">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">What Our Clients Say</h2>
+          <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+            Don't just take our word for it. Here's what our satisfied clients have to say about working with us.
+          </p>
+        </div>
+        
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {featuredTestimonials.map((testimonial) => (
+            <TestimonialCard testimonial={testimonial} />
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- Team Section -->
+  {featuredTeam.length > 0 && (
+    <section class="py-16">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Meet Our Team</h2>
+          <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+            Our experienced professionals bring deep expertise and proven results to every project.
+          </p>
+        </div>
+        
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {featuredTeam.map((member) => (
+            <TeamCard member={member} />
+          ))}
+        </div>
+        
+        {teamMembers.length > 3 && (
+          <div class="text-center mt-12">
+            <a href="/team" class="bg-primary-600 text-white hover:bg-primary-700 px-8 py-3 rounded-md font-semibold text-lg transition-colors">
+              View Full Team
+            </a>
+          </div>
+        )}
+      </div>
+    </section>
+  )}
+
+  <!-- CTA Section -->
+  <section class="py-16 bg-primary-600 text-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <h2 class="text-3xl md:text-4xl font-bold mb-4">Ready to Get Started?</h2>
+      <p class="text-xl text-primary-100 mb-8 max-w-2xl mx-auto">
+        Let's discuss how we can help your business achieve its goals with our expert services and proven solutions.
+      </p>
+      <a href="/contact" class="bg-white text-primary-600 hover:bg-gray-100 px-8 py-3 rounded-md font-semibold text-lg transition-colors">
+        Contact Us Today
+      </a>
+    </div>
+  </section>
+
+  <Footer />
+  
+  <!-- Cosmic Badge -->
+  <CosmicBadge bucketSlug={bucketSlug} />
+</Layout>

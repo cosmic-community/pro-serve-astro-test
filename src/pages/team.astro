@@ -1,0 +1,63 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import TeamCard from '../components/TeamCard.astro';
+import CosmicBadge from '../components/CosmicBadge.astro';
+import { getTeamMembers } from '../lib/cosmic';
+
+const teamMembers = await getTeamMembers();
+const bucketSlug = import.meta.env.COSMIC_BUCKET_SLUG;
+---
+
+<Layout title="Our Team - Meet the Experts Behind Our Success" description="Meet our experienced team of professionals who deliver exceptional results through expertise, innovation, and dedication to client success.">
+  <Header />
+  
+  <!-- Hero Section -->
+  <section class="bg-gray-50 py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center">
+        <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+          Meet Our Team
+        </h1>
+        <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+          Our experienced professionals bring deep expertise and proven results to every project. Get to know the people behind our success.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Team Grid -->
+  <section class="py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {teamMembers.length > 0 ? (
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {teamMembers.map((member) => (
+            <TeamCard member={member} />
+          ))}
+        </div>
+      ) : (
+        <div class="text-center py-12">
+          <h2 class="text-2xl font-semibold text-gray-900 mb-4">No Team Members Available</h2>
+          <p class="text-gray-600">Team member profiles will appear here once they are added to your Cosmic bucket.</p>
+        </div>
+      )}
+    </div>
+  </section>
+
+  <!-- Join Our Team CTA -->
+  <section class="py-16 bg-primary-600 text-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <h2 class="text-3xl md:text-4xl font-bold mb-4">Join Our Team</h2>
+      <p class="text-xl text-primary-100 mb-8 max-w-2xl mx-auto">
+        Are you passionate about delivering exceptional results? We're always looking for talented professionals to join our growing team.
+      </p>
+      <a href="/contact" class="bg-white text-primary-600 hover:bg-gray-100 px-8 py-3 rounded-md font-semibold text-lg transition-colors">
+        Get In Touch
+      </a>
+    </div>
+  </section>
+
+  <Footer />
+  <CosmicBadge bucketSlug={bucketSlug} />
+</Layout>

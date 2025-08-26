@@ -1,0 +1,170 @@
+// src/pages/case-studies/[slug].astro
+---
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import CosmicBadge from '../../components/CosmicBadge.astro';
+import { getCaseStudies, getCaseStudyBySlug } from '../../lib/cosmic';
+
+export async function getStaticPaths() {
+  const caseStudies = await getCaseStudies();
+  return caseStudies.map((caseStudy) => ({
+    params: { slug: caseStudy.slug },
+  }));
+}
+
+const { slug } = Astro.params;
+const caseStudy = await getCaseStudyBySlug(slug);
+const bucketSlug = import.meta.env.COSMIC_BUCKET_SLUG;
+
+if (!caseStudy) {
+  return Astro.redirect('/case-studies');
+}
+---
+
+<Layout 
+  title={`${caseStudy.metadata?.title || caseStudy.title} - Case Study`}
+  description={`Case study: ${caseStudy.metadata?.client_name} - ${caseStudy.metadata?.industry?.value}`}
+>
+  <Header />
+  
+  <main class="py-16">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Hero Section */}
+      <div class="mb-12">
+        {caseStudy.metadata?.featured_image && (
+          <div class="mb-8 rounded-lg overflow-hidden">
+            <img 
+              src={`${caseStudy.metadata.featured_image.imgix_url}?w=1200&h=600&fit=crop&auto=format,compress`}
+              alt={caseStudy.metadata?.title || caseStudy.title}
+              class="w-full h-64 md:h-96 object-cover"
+            />
+          </div>
+        )}
+        
+        <div class="flex items-center justify-between mb-6">
+          <div>
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+              {caseStudy.metadata?.title || caseStudy.title}
+            </h1>
+            <div class="text-lg text-gray-600">
+              <span class="font-medium">Client:</span> {caseStudy.metadata?.client_name}
+              {caseStudy.metadata?.duration && (
+                <>
+                  <span class="mx-2">•</span>
+                  <span class="font-medium">Duration:</span> {caseStudy.metadata.duration}
+                </>
+              )}
+            </div>
+          </div>
+          
+          {caseStudy.metadata?.industry && (
+            <span class="inline-block bg-primary-100 text-primary-800 px-3 py-1 rounded-full text-sm font-medium">
+              {caseStudy.metadata.industry.value}
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* Challenge Section */}
+      {caseStudy.metadata?.challenge && (
+        <div class="mb-12">
+          <h2 class="text-2xl font-bold text-gray-900 mb-6">The Challenge</h2>
+          <div class="prose prose-lg max-w-none" set:html={caseStudy.metadata.challenge}></div>
+        </div>
+      )}
+
+      {/* Solution Section */}
+      {caseStudy.metadata?.solution && (
+        <div class="mb-12">
+          <h2 class="text-2xl font-bold text-gray-900 mb-6">Our Solution</h2>
+          <div class="prose prose-lg max-w-none" set:html={caseStudy.metadata.solution}></div>
+        </div>
+      )}
+
+      {/* Gallery */}
+      {caseStudy.metadata?.gallery && caseStudy.metadata.gallery.length > 0 && (
+        <div class="mb-12">
+          <h2 class="text-2xl font-bold text-gray-900 mb-6">Project Gallery</h2>
+          <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {caseStudy.metadata.gallery.map((image, index) => (
+              <div class="rounded-lg overflow-hidden">
+                <img 
+                  src={`${image.imgix_url}?w=600&h=400&fit=crop&auto=format,compress`}
+                  alt={`Project gallery image ${index + 1}`}
+                  class="w-full h-48 object-cover hover:scale-105 transition-transform duration-300"
+                  loading="lazy"
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Results Section */}
+      {caseStudy.metadata?.results && (
+        <div class="mb-12">
+          <h2 class="text-2xl font-bold text-gray-900 mb-6">The Results</h2>
+          <div class="prose prose-lg max-w-none" set:html={caseStudy.metadata.results}></div>
+        </div>
+      )}
+
+      {/* Key Metrics */}
+      {caseStudy.metadata?.metrics && Object.keys(caseStudy.metadata.metrics).length > 0 && (
+        <div class="mb-12">
+          <h2 class="text-2xl font-bold text-gray-900 mb-6">Key Metrics</h2>
+          <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {Object.entries(caseStudy.metadata.metrics).map(([key, value]) => (
+              <div class="text-center bg-gray-50 rounded-lg p-6">
+                <div class="text-3xl font-bold text-primary-600 mb-2">{value}</div>
+                <div class="text-gray-600 capitalize">
+                  {key.replace(/_/g, ' ')}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Services Used */}
+      {caseStudy.metadata?.services_used && caseStudy.metadata.services_used.length > 0 && (
+        <div class="mb-12">
+          <h2 class="text-2xl font-bold text-gray-900 mb-6">Services Used</h2>
+          <div class="grid md:grid-cols-2 gap-6">
+            {caseStudy.metadata.services_used.map((service) => (
+              <div class="border border-gray-200 rounded-lg p-4">
+                <h3 class="font-semibold text-gray-900 mb-2">
+                  {service.metadata?.name || service.title}
+                </h3>
+                <p class="text-gray-600 text-sm">
+                  {service.metadata?.short_description}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* CTA Section */}
+      <div class="bg-gray-50 rounded-lg p-8 text-center">
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">
+          Ready for Similar Results?
+        </h2>
+        <p class="text-gray-600 mb-6">
+          Let's discuss how we can help your business achieve comparable success.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+          <a href="/contact" class="bg-primary-600 text-white hover:bg-primary-700 px-8 py-3 rounded-md font-semibold transition-colors">
+            Start Your Project
+          </a>
+          <a href="/case-studies" class="border border-gray-300 text-gray-700 hover:bg-gray-50 px-8 py-3 rounded-md font-semibold transition-colors">
+            View More Case Studies
+          </a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <Footer />
+  <CosmicBadge bucketSlug={bucketSlug} />
+</Layout>

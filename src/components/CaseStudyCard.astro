@@ -1,0 +1,95 @@
+---
+import type { CaseStudy } from '../types';
+
+export interface Props {
+  caseStudy: CaseStudy;
+}
+
+const { caseStudy } = Astro.props;
+---
+
+<div class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden">
+  {caseStudy.metadata?.featured_image && (
+    <div class="aspect-w-16 aspect-h-9">
+      <img 
+        src={`${caseStudy.metadata.featured_image.imgix_url}?w=800&h=400&fit=crop&auto=format,compress`}
+        alt={caseStudy.metadata?.title || caseStudy.title}
+        class="w-full h-48 object-cover"
+        loading="lazy"
+      />
+    </div>
+  )}
+  
+  <div class="p-6">
+    <div class="flex items-center justify-between mb-3">
+      <h3 class="text-xl font-semibold text-gray-900">
+        {caseStudy.metadata?.title || caseStudy.title}
+      </h3>
+      
+      {caseStudy.metadata?.industry && (
+        <span class="inline-block bg-primary-100 text-primary-800 text-xs px-2 py-1 rounded">
+          {caseStudy.metadata.industry.value}
+        </span>
+      )}
+    </div>
+    
+    <div class="text-sm text-gray-600 mb-4">
+      <span class="font-medium">Client:</span> {caseStudy.metadata?.client_name}
+      {caseStudy.metadata?.duration && (
+        <>
+          <span class="mx-2">•</span>
+          <span class="font-medium">Duration:</span> {caseStudy.metadata.duration}
+        </>
+      )}
+    </div>
+    
+    {/* Challenge Preview */}
+    {caseStudy.metadata?.challenge && (
+      <div class="mb-4">
+        <h4 class="text-sm font-medium text-gray-900 mb-1">Challenge:</h4>
+        <div class="text-sm text-gray-600 line-clamp-3" set:html={caseStudy.metadata.challenge}></div>
+      </div>
+    )}
+    
+    {/* Key Metrics */}
+    {caseStudy.metadata?.metrics && (
+      <div class="mb-4">
+        <h4 class="text-sm font-medium text-gray-900 mb-2">Key Results:</h4>
+        <div class="grid grid-cols-2 gap-2">
+          {Object.entries(caseStudy.metadata.metrics).slice(0, 4).map(([key, value]) => (
+            <div class="text-center bg-gray-50 rounded p-2">
+              <div class="text-lg font-bold text-primary-600">{value}</div>
+              <div class="text-xs text-gray-600 capitalize">
+                {key.replace(/_/g, ' ')}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    )}
+    
+    {/* Services Used */}
+    {caseStudy.metadata?.services_used && caseStudy.metadata.services_used.length > 0 && (
+      <div class="mb-6">
+        <h4 class="text-sm font-medium text-gray-900 mb-2">Services:</h4>
+        <div class="flex flex-wrap gap-1">
+          {caseStudy.metadata.services_used.map((service) => (
+            <span class="inline-block bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded">
+              {service.metadata?.name || service.title}
+            </span>
+          ))}
+        </div>
+      </div>
+    )}
+    
+    <a 
+      href={`/case-studies/${caseStudy.slug}`}
+      class="inline-flex items-center text-primary-600 hover:text-primary-700 font-medium"
+    >
+      Read Full Case Study
+      <svg class="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+      </svg>
+    </a>
+  </div>
+</div>
