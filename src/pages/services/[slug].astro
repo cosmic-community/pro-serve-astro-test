@@ -1,10 +1,10 @@
-// src/pages/services/[slug].astro
 ---
 import Layout from '../../layouts/Layout.astro';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
 import CosmicBadge from '../../components/CosmicBadge.astro';
 import { getServices, getServiceBySlug } from '../../lib/cosmic';
+import type { Service } from '../../types';
 
 export async function getStaticPaths() {
   const services = await getServices();
@@ -14,7 +14,7 @@ export async function getStaticPaths() {
 }
 
 const { slug } = Astro.params;
-const service = await getServiceBySlug(slug);
+const service = await getServiceBySlug(slug as string);
 const bucketSlug = import.meta.env.COSMIC_BUCKET_SLUG;
 
 if (!service) {
@@ -42,44 +42,42 @@ if (!service) {
           </div>
         )}
         
-        <div class="text-center mb-8">
-          <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+        <div class="mb-6">
+          <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
             {service.metadata?.name || service.title}
           </h1>
           
           {service.metadata?.short_description && (
-            <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+            <p class="text-xl text-gray-600 mb-6">
               {service.metadata.short_description}
             </p>
           )}
           
           {service.metadata?.starting_price && (
-            <div class="mt-6">
-              <span class="text-2xl font-bold text-primary-600">
-                Starting at {service.metadata.starting_price}
-              </span>
+            <div class="inline-block bg-primary-100 text-primary-800 px-4 py-2 rounded-lg font-semibold">
+              Starting at {service.metadata.starting_price}
             </div>
           )}
         </div>
       </div>
 
-      {/* Service Details */}
+      {/* Description Section */}
       {service.metadata?.description && (
         <div class="mb-12">
-          <h2 class="text-2xl font-bold text-gray-900 mb-6">Service Details</h2>
+          <h2 class="text-2xl font-bold text-gray-900 mb-6">Service Overview</h2>
           <div class="prose prose-lg max-w-none" set:html={service.metadata.description}></div>
         </div>
       )}
 
-      {/* Features */}
+      {/* Features Section */}
       {service.metadata?.features && service.metadata.features.length > 0 && (
         <div class="mb-12">
           <h2 class="text-2xl font-bold text-gray-900 mb-6">What's Included</h2>
           <div class="grid md:grid-cols-2 gap-4">
             {service.metadata.features.map((feature: string) => (
               <div class="flex items-start">
-                <svg class="h-6 w-6 text-green-500 mr-3 mt-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                <svg class="h-6 w-6 text-primary-600 mr-3 mt-1 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                 </svg>
                 <span class="text-gray-700">{feature}</span>
               </div>
@@ -91,14 +89,14 @@ if (!service) {
       {/* CTA Section */}
       <div class="bg-gray-50 rounded-lg p-8 text-center">
         <h2 class="text-2xl font-bold text-gray-900 mb-4">
-          Interested in This Service?
+          Ready to Get Started?
         </h2>
         <p class="text-gray-600 mb-6">
-          Let's discuss how we can help you achieve your goals with this service.
+          Let's discuss how this service can help achieve your business goals.
         </p>
         <div class="flex flex-col sm:flex-row gap-4 justify-center">
           <a href="/contact" class="bg-primary-600 text-white hover:bg-primary-700 px-8 py-3 rounded-md font-semibold transition-colors">
-            Get Started
+            Get a Quote
           </a>
           <a href="/services" class="border border-gray-300 text-gray-700 hover:bg-gray-50 px-8 py-3 rounded-md font-semibold transition-colors">
             View All Services

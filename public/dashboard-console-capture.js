@@ -1,10 +1,9 @@
-(function() {
-  // Only activate in iframe
+(function () {
   if (window.self === window.top) return;
-  
+
   const logs = [];
   const MAX_LOGS = 500;
-  
+
   const originalConsole = {
     log: console.log,
     warn: console.warn,
@@ -12,64 +11,79 @@
     info: console.info,
     debug: console.debug
   };
-  
+
   function captureLog(level, args) {
     const timestamp = new Date().toISOString();
     const message = args.map(arg => {
       if (typeof arg === 'object' && arg !== null) {
         try {
-          return JSON.stringify(arg, (key, value) => {
+          return JSON.stringify(arg, (_, value) => {
             if (typeof value === 'function') return '[Function]';
             if (value instanceof Error) return value.toString();
             return value;
-          }, 2);
+          });
         } catch (e) {
           return '[Object]';
         }
       }
       return String(arg);
     }).join(' ');
-    
+
     const logEntry = {
       timestamp,
       level,
       message,
       url: window.location.href
     };
-    
+
     logs.push(logEntry);
     if (logs.length > MAX_LOGS) {
       logs.shift();
     }
-    
+
     try {
       window.parent.postMessage({
         type: 'console-log',
         log: logEntry
       }, '*');
-    } catch (e) {}
-    
-    // Call original console method
-    originalConsole[level].apply(console, args);
+    } catch (e) { }
   }
-  
+
   // Override console methods
-  console.log = function() { captureLog('log', Array.from(arguments)); };
-  console.warn = function() { captureLog('warn', Array.from(arguments)); };
-  console.error = function() { captureLog('error', Array.from(arguments)); };
-  console.info = function() { captureLog('info', Array.from(arguments)); };
-  console.debug = function() { captureLog('debug', Array.from(arguments)); };
-  
-  // Capture unhandled errors
+  console.log = function(...args) {
+    captureLog('log', args);
+    originalConsole.log.apply(console, args);
+  };
+
+  console.warn = function(...args) {
+    captureLog('warn', args);
+    originalConsole.warn.apply(console, args);
+  };
+
+  console.error = function(...args) {
+    captureLog('error', args);
+    originalConsole.error.apply(console, args);
+  };
+
+  console.info = function(...args) {
+    captureLog('info', args);
+    originalConsole.info.apply(console, args);
+  };
+
+  console.debug = function(...args) {
+    captureLog('debug', args);
+    originalConsole.debug.apply(console, args);
+  };
+
+  // Capture unhandled errors and promise rejections
   window.addEventListener('error', function(event) {
-    captureLog('error', [`Unhandled Error: ${event.error ? event.error.stack : event.message}`]);
+    captureLog('error', [`Uncaught Error: ${event.message}`, `at ${event.filename}:${event.lineno}:${event.colno}`]);
   });
-  
-  // Capture unhandled promise rejections
+
   window.addEventListener('unhandledrejection', function(event) {
     captureLog('error', [`Unhandled Promise Rejection: ${event.reason}`]);
   });
-  
+
   function sendReady() {
     try {
       window.parent.postMessage({
@@ -77,9 +91,9 @@
         url: window.location.href,
         timestamp: new Date().toISOString()
       }, '*');
-    } catch (e) {}
+    } catch (e) { }
   }
-  
+
   function sendRouteChange() {
     try {
       window.parent.postMessage({
@@ -92,33 +106,35 @@
         },
         timestamp: new Date().toISOString()
       }, '*');
-    } catch (e) {}
+    } catch (e) { }
   }
-  
+
   // Send ready message
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', sendReady);
+  if (document.readyState === 'complete') {
+    setTimeout(sendReady, 100);
   } else {
-    sendReady();
+    window.addEventListener('load', sendReady);
   }
-  
+
   // Monitor route changes
   const originalPushState = history.pushState;
   const originalReplaceState = history.replaceState;
-  
-  history.pushState = function() {
-    originalPushState.apply(history, arguments);
-    setTimeout(sendRouteChange, 0);
+
+  history.pushState = function(...args) {
+    originalPushState.apply(history, args);
+    setTimeout(sendRouteChange, 100);
   };
-  
-  history.replaceState = function() {
-    originalReplaceState.apply(history, arguments);
-    setTimeout(sendRouteChange, 0);
+
+  history.replaceState = function(...args) {
+    originalReplaceState.apply(history, args);
+    setTimeout(sendRouteChange, 100);
   };
-  
+
   window.addEventListener('popstate', sendRouteChange);
   window.addEventListener('hashchange', sendRouteChange);
-  
-  // Send initial route
-  sendRouteChange();
+
+  // Send initial route after ready
+  setTimeout(() => {
+    sendRouteChange();
+  }, 200);
 })();

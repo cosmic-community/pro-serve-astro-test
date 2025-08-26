@@ -4,7 +4,7 @@ import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
 import CosmicBadge from '../../components/CosmicBadge.astro';
 import { getCaseStudies, getCaseStudyBySlug } from '../../lib/cosmic';
-import type { CaseStudy, Service } from '../../types';
+import type { Service } from '../../types';
 
 export async function getStaticPaths() {
   const caseStudies = await getCaseStudies();
