@@ -116,5 +116,5 @@ export function isTestimonial(obj: CosmicObject): obj is Testimonial {
   return obj.type === 'testimonials';
 }
 
-// Utility types for common patterns
-export type OptionalMetadata<T> = Partial<T['metadata']>;
+// Utility type for objects with metadata (constrainted to CosmicObject)
+export type OptionalMetadata<T extends CosmicObject> = Partial<T['metadata']>;

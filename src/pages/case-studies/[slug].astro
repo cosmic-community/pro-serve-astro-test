@@ -1,10 +1,10 @@
-// src/pages/case-studies/[slug].astro
 ---
 import Layout from '../../layouts/Layout.astro';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
 import CosmicBadge from '../../components/CosmicBadge.astro';
 import { getCaseStudies, getCaseStudyBySlug } from '../../lib/cosmic';
+import type { CaseStudy, Service } from '../../types';
 
 export async function getStaticPaths() {
   const caseStudies = await getCaseStudies();
@@ -14,7 +14,7 @@ export async function getStaticPaths() {
 }
 
 const { slug } = Astro.params;
-const caseStudy = await getCaseStudyBySlug(slug);
+const caseStudy = await getCaseStudyBySlug(slug as string);
 const bucketSlug = import.meta.env.COSMIC_BUCKET_SLUG;
 
 if (!caseStudy) {
@@ -87,7 +87,7 @@ if (!caseStudy) {
         <div class="mb-12">
           <h2 class="text-2xl font-bold text-gray-900 mb-6">Project Gallery</h2>
           <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {caseStudy.metadata.gallery.map((image, index) => (
+            {caseStudy.metadata.gallery.map((image: { imgix_url: string }, index: number) => (
               <div class="rounded-lg overflow-hidden">
                 <img 
                   src={`${image.imgix_url}?w=600&h=400&fit=crop&auto=format,compress`}
@@ -114,7 +114,7 @@ if (!caseStudy) {
         <div class="mb-12">
           <h2 class="text-2xl font-bold text-gray-900 mb-6">Key Metrics</h2>
           <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {Object.entries(caseStudy.metadata.metrics).map(([key, value]) => (
+            {Object.entries(caseStudy.metadata.metrics).map(([key, value]: [string, string]) => (
               <div class="text-center bg-gray-50 rounded-lg p-6">
                 <div class="text-3xl font-bold text-primary-600 mb-2">{value}</div>
                 <div class="text-gray-600 capitalize">
@@ -131,7 +131,7 @@ if (!caseStudy) {
         <div class="mb-12">
           <h2 class="text-2xl font-bold text-gray-900 mb-6">Services Used</h2>
           <div class="grid md:grid-cols-2 gap-6">
-            {caseStudy.metadata.services_used.map((service) => (
+            {caseStudy.metadata.services_used.map((service: Service) => (
               <div class="border border-gray-200 rounded-lg p-4">
                 <h3 class="font-semibold text-gray-900 mb-2">
                   {service.metadata?.name || service.title}
